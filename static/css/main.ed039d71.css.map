@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/main.ed039d71.css","mappings":"AAAA,EAGI,qBAAsB,CACtB,sCAAyC,CAHzC,QAAW,CACX,SAGJ","sources":["style/style.css"],"sourcesContent":["* {\r\n    margin: 0px;\r\n    padding: 0px;\r\n    box-sizing: border-box;\r\n    font-family: Arial, Helvetica, sans-serif;\r\n}"],"names":[],"sourceRoot":""}
