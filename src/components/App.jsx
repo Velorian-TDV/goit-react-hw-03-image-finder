@@ -3,10 +3,14 @@ import Searchbar from "./Searchbar/Searchbar";
 import ImageGallery from "./ImageGallery/ImageGallery";
 import Loader from "./Loader/Loader";
 import Button from "./Button/Button";
+import Modal from "./Modal/Modal";
 
 export default class App extends React.Component {
     state = {
         images: [],
+        isModalOpen: false,
+        modalImage: '',
+        modalAlt: '',
         query: '',
         status: 'idle',
         apiKey: '37437370-877202df46223cca979279914',
@@ -42,8 +46,10 @@ export default class App extends React.Component {
 
     getImages = () => this.state.images;
 
+    modalTogle = (image, alt) => this.setState({ isModalOpen: !this.state.isModalOpen, modalImage: image, modalAlt: alt })
+
     render() {
-        const { query, status } = this.state;
+        const { query, status, isModalOpen, modalImage, modalAlt } = this.state;
 
         if (status === 'idle') {
             return (
@@ -76,8 +82,11 @@ export default class App extends React.Component {
             return (
                 <div className="App">
                     <Searchbar imageParser={this.imageParser} handleChange={this.handleChange} />
-                    <ImageGallery getImages={this.getImages} />
+                    <ImageGallery getImages={this.getImages} modalTogle={this.modalTogle} />
                     <Button imageParser={this.imageParser} />
+                    {isModalOpen && <Modal modalTogle={this.modalTogle}>
+                        <img src={modalImage} alt={modalAlt} />
+                    </Modal>}
                 </div>
             )
         }

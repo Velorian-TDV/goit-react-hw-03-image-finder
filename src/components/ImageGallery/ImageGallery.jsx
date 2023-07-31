@@ -4,10 +4,9 @@ import ImageGalleryItem from "../ImageGalleryItem/ImageGalleryItem";
 
 export default class ImageGallery extends React.Component {
     static propTypes = {
-        getImages: PropTypes.func.isRequired
-        
+        getImages: PropTypes.func.isRequired,
     }
-
+    
     constructor(props) {
         super(props);
 
@@ -16,17 +15,18 @@ export default class ImageGallery extends React.Component {
 
     render() {
         return (
-            <ul className="ImageGallery">
+            <ul className="ImageGallery" >
                 {this.images().length === 0 ? null :
                     this.images().map(image => {
-                        const { id, previewURL, largeImageURL, tags } = image;
+                        const { id, webformatURL, largeImageURL, tags } = image;
 
                         return (
                             <ImageGalleryItem
                                 key={id}
-                                src={previewURL}
+                                src={webformatURL}
                                 alt={tags}
                                 dataLarge={largeImageURL}
+                                modalTogle={this.props.modalTogle}
                             />
                         )
                     })
