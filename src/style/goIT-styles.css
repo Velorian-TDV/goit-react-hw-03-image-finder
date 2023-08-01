@@ -207,6 +207,18 @@ img {
   background-color: #303f9f;
 }
 
+[data-visible=false] {
+  opacity: 0;
+  display: none;
+  visibility: hidden;
+}
+
+[data-visible=true] {
+  opacity: 1;
+  display: inline-block;
+  visibility: visible;
+}
+
 /* 
 * Стили компонента Loader
 */

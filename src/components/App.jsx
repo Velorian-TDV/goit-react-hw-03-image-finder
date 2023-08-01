@@ -1,4 +1,5 @@
 import React from "react";
+import PixabayApi from "../services/imageParser";
 import Searchbar from "./Searchbar/Searchbar";
 import ImageGallery from "./ImageGallery/ImageGallery";
 import Loader from "./Loader/Loader";
@@ -13,48 +14,50 @@ export default class App extends React.Component {
         modalAlt: '',
         query: '',
         status: 'idle',
-        apiKey: '37437370-877202df46223cca979279914',
-        currentPage: 1,
+        currentPage: 0,
+        buttonVisibility: true
     };
 
-    componentDidUpdate(prevProps, prevState) {
-        const { query } = this.state;
+    async componentDidUpdate(prevProps, prevState) {
+        const { query, currentPage } = this.state;
         const prevQuery = prevState.query;
+        const prevPage = prevState.currentPage;
 
-        if (query !== prevQuery) this.setState({ images: [], currentPage: 1, status: 'idle' })
+        if (query !== prevQuery) await this.imageSkip();
+        if (currentPage !== prevPage) await this.imageParser();
     }
 
-    imageParser = () => {
-        const { apiKey, images, currentPage, query } = this.state;
-        const URL = `https://pixabay.com/api/?key=${apiKey}&q=${query}&image_type=photo&page=${currentPage}&per_page=12`;
+    imageParser = async () => {
+        const { images, currentPage, query } = this.state;
+        this.setState({ status: 'pending' });
 
-        this.setState({ currentPage: currentPage + 1, status: 'pending' });
-
-        fetch(URL)
-            .then(response => {
-                if (!response.ok) this.setState({ status: 'rejected' });
-                return response.json();
-            })
+        PixabayApi(query, currentPage)
             .then(data => {
-                if (data.total === 0) this.setState({ status: 'rejected' });
+                if (data === null) this.setState({ status: 'rejected' })
                 else if (query.trim() === '') this.setState({ status: 'rejected' });
+                else if (data.total === 0) this.setState({ status: 'rejected' });
+                else if (images.length + 12 >= data.total) this.setState({ buttonVisibility: false, images: [...images, ...data.hits], status: 'fulfilled' })
                 else this.setState({ images: [...images, ...data.hits], status: 'fulfilled' });
             })
     };
 
-    handleChange = (event) => this.setState({ query: event.target.value });
+    imageSkip = async () => this.setState({ currentPage: 1, images: [], buttonVisibility: true })
+
+    queryChange = (query) => this.setState({ query: query });
+
+    loadMore = () => this.setState({ currentPage: this.state.currentPage + 1 })
 
     getImages = () => this.state.images;
 
     modalTogle = (image, alt) => this.setState({ isModalOpen: !this.state.isModalOpen, modalImage: image, modalAlt: alt })
 
     render() {
-        const { query, status, isModalOpen, modalImage, modalAlt } = this.state;
+        const { query, status, isModalOpen, modalImage, modalAlt, buttonVisibility } = this.state;
 
         if (status === 'idle') {
             return (
                 <div className="App">
-                    <Searchbar imageParser={this.imageParser} handleChange={this.handleChange} />
+                    <Searchbar queryChange={this.queryChange} loadMore={this.loadMore} />
                 </div>
             )
         }
@@ -62,7 +65,7 @@ export default class App extends React.Component {
         if (status === 'pending') {
             return (
                 <div className="App">
-                    <Searchbar imageParser={this.imageParser} handleChange={this.handleChange} />
+                    <Searchbar queryChange={this.queryChange} loadMore={this.loadMore} />
                     <ImageGallery getImages={this.getImages} />
                     <Loader />
                 </div>
@@ -72,7 +75,7 @@ export default class App extends React.Component {
         if (status === 'rejected') {
             return (
                 <div className="App">
-                    <Searchbar imageParser={this.imageParser} handleChange={this.handleChange} />
+                    <Searchbar queryChange={this.queryChange} loadMore={this.loadMore} />
                     <p className="rejected">Nothing was found according to your request <b>{query}</b>.</p>
                 </div>
             )
@@ -81,9 +84,9 @@ export default class App extends React.Component {
         if (status === 'fulfilled') {
             return (
                 <div className="App">
-                    <Searchbar imageParser={this.imageParser} handleChange={this.handleChange} />
+                    <Searchbar queryChange={this.queryChange} loadMore={this.loadMore} />
                     <ImageGallery getImages={this.getImages} modalTogle={this.modalTogle} />
-                    <Button imageParser={this.imageParser} />
+                    <Button loadMore={this.loadMore} visibility={buttonVisibility} />
                     {isModalOpen && <Modal modalTogle={this.modalTogle}>
                         <img src={modalImage} alt={modalAlt} />
                     </Modal>}

@@ -23,6 +23,7 @@ export default class ImageGallery extends React.Component {
                         return (
                             <ImageGalleryItem
                                 key={id}
+                                id={id}
                                 src={webformatURL}
                                 alt={tags}
                                 dataLarge={largeImageURL}

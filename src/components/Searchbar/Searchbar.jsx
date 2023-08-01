@@ -4,15 +4,15 @@ import { FaSearch } from 'react-icons/fa';
 
 export default class Searchbar extends React.Component {
     static propType = {
-        handleChange: PropTypes.func.isRequired,
-        imageParser: PropTypes.func.isRequired,
+        loadMore: PropTypes.func.isRequired,
+        queryChange: PropTypes.func.isRequired,
     }
 
     constructor(props) {
         super(props);
 
-        this.handleChange = this.props.handleChange;
-        this.imageParser = this.props.imageParser;
+        this.queryChange = this.props.queryChange;
+        this.loadMore = this.props.loadMore;
     }
 
     state = {
@@ -23,7 +23,12 @@ export default class Searchbar extends React.Component {
         event.preventDefault();
         const { query } = this.state;
 
-        this.imageParser(query)
+        this.queryChange(query);
+        this.loadMore();
+    }
+
+    handleChange = (event) => {
+        this.setState({ query: event.target.value })
     }
 
     render() {
